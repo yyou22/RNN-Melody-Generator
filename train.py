@@ -32,7 +32,7 @@ def train_network():
 
     network_input, network_output = prepare_sequences(notes, n_vocab)
 
-    model = create_network(network_input, n_vocab)
+    model = create_lstm(network_input, n_vocab)
 
     train(model, network_input, network_output)
 
@@ -99,7 +99,7 @@ def prepare_sequences(notes, n_vocab):
 
     return (network_input, network_output)
 
-def create_network(network_input, n_vocab):
+def create_lstm(network_input, n_vocab):
     """ create the structure of the neural network """
     model = Sequential()
     model.add(LSTM(
