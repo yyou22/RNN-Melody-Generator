@@ -7,12 +7,15 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Dropout
 from keras.layers import LSTM
+from keras.layers import SimpleRNN
+from keras.layers import GRU
 from keras.layers import BatchNormalization as BatchNorm
 from keras.layers import Activation
 from keras.layers import LeakyReLU
 import random
+import sys
 
-def generate():
+def generate(model_type):
     """ Generate a piano midi file """
     #load the notes used to train the model
     with open('data/notes', 'rb') as filepath:
@@ -35,9 +38,21 @@ def generate():
         input_notes = pickle.load(filepath)
 
     network_input, normalized_input = prepare_sequences(notes, input_notes, pitchnames, n_vocab)
-    model = create_lstm(normalized_input, n_vocab)
+
+    model = None
+
+    if model_type == "lstm":
+        model = create_lstm(normalized_input, n_vocab)
+    elif model_type == "rnn":
+        model = create_rnn(normalized_input, n_vocab)
+    elif model_type == "gru":
+        model = create_gru(normalized_input, n_vocab)
+    else:
+        print("Invalid Model Type Input")
+        return
+
     prediction_output = generate_notes(model, network_input, pitchnames, n_vocab)
-    create_midi(prediction_output)
+    create_midi(prediction_output, model_type)
 
 def prepare_sequences(notes, input_notes, pitchnames, n_vocab):
     """ Prepare the sequences used by the Neural Network """
@@ -75,7 +90,7 @@ def create_lstm(network_input, n_vocab):
     model.add(BatchNorm())
     model.add(Dropout(0.3))
     model.add(Dense(256))
-    model.add(LeakyReLU(alpha=0.05))
+    model.add(LeakyReLU(alpha=0.3))
     model.add(BatchNorm())
     model.add(Dropout(0.3))
     model.add(Dense(n_vocab))
@@ -83,7 +98,59 @@ def create_lstm(network_input, n_vocab):
     model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
 
     # Load the weights to each node
-    model.load_weights('touhou_11_9.hdf5')
+    model.load_weights('touhou_lstm.hdf5')
+
+    return model
+
+def create_rnn(network_input, n_vocab):
+    """create the structure of simple rnn"""
+    model = Sequential()
+    model.add(SimpleRNN(
+        512,
+        input_shape=(network_input.shape[1], network_input.shape[2]),
+        recurrent_dropout=0.3,
+        return_sequences=True
+    ))
+    model.add(SimpleRNN(512, return_sequences=True, recurrent_dropout=0.3,))
+    model.add(SimpleRNN(512))
+    model.add(BatchNorm())
+    model.add(Dropout(0.3))
+    model.add(Dense(256))
+    model.add(LeakyReLU(alpha=0.3))
+    model.add(BatchNorm())
+    model.add(Dropout(0.3))
+    model.add(Dense(n_vocab))
+    model.add(Activation('softmax'))
+    model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
+
+    # Load the weights to each node
+    model.load_weights('touhou_rnn.hdf5')
+
+    return model
+
+def create_gru(network_input, n_vocab):
+    """create the structure of simple rnn"""
+    model = Sequential()
+    model.add(GRU(
+        512,
+        input_shape=(network_input.shape[1], network_input.shape[2]),
+        recurrent_dropout=0.3,
+        return_sequences=True
+    ))
+    model.add(GRU(512, return_sequences=True, recurrent_dropout=0.3,))
+    model.add(GRU(512))
+    model.add(BatchNorm())
+    model.add(Dropout(0.3))
+    model.add(Dense(256))
+    model.add(LeakyReLU(alpha=0.3))
+    model.add(BatchNorm())
+    model.add(Dropout(0.3))
+    model.add(Dense(n_vocab))
+    model.add(Activation('softmax'))
+    model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
+
+    # Load the weights to each node
+    model.load_weights('touhou_gru.hdf5')
 
     return model
 
@@ -100,11 +167,12 @@ def generate_notes(model, network_input, pitchnames, n_vocab):
     prediction_output = []
 
     # generate notes
-    for note_index in range(200):
+    for note_index in range(10):
         prediction_input = numpy.reshape(pattern, (1, len(pattern), 1))
         prediction_input = prediction_input / float(n_vocab)
 
         prediction = model.predict(prediction_input, verbose=0)
+        print(prediction)
 
         index = numpy.argmax(prediction)
         print(index)
@@ -116,7 +184,7 @@ def generate_notes(model, network_input, pitchnames, n_vocab):
 
     return prediction_output
 
-def create_midi(prediction_output):
+def create_midi(prediction_output, model_type):
     """ convert the output from the prediction to notes and create a midi file
         from the notes """
     offset = 0
@@ -151,7 +219,12 @@ def create_midi(prediction_output):
 
     midi_stream = stream.Stream(output_notes)
 
-    midi_stream.write('midi', fp='test_output.mid')
+    if model_type == "lstm":
+        midi_stream.write('midi', fp='output_lstm.mid')
+    elif model_type == "rnn":
+        midi_stream.write('midi', fp='output_rnn.mid')
+    elif model_type == "gru":
+        midi_stream.write('midi', fp='output_gru.mid')
 
 if __name__ == '__main__':
-    generate()
+    generate(sys.argv[1])
