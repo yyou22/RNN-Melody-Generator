@@ -167,12 +167,12 @@ def generate_notes(model, network_input, pitchnames, n_vocab):
     prediction_output = []
 
     # generate notes
-    for note_index in range(10):
+    for note_index in range(200):
         prediction_input = numpy.reshape(pattern, (1, len(pattern), 1))
         prediction_input = prediction_input / float(n_vocab)
 
         prediction = model.predict(prediction_input, verbose=0)
-        print(prediction)
+        #print(prediction)
 
         index = numpy.argmax(prediction)
         print(index)

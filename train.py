@@ -15,6 +15,7 @@ from keras.layers import BatchNormalization as BatchNorm
 from keras.utils import np_utils
 from keras.callbacks import ModelCheckpoint
 from keras.layers import LeakyReLU
+from keras.callbacks import TensorBoard
 import sys
 
 def train_network(model_type):
@@ -47,6 +48,9 @@ def train_network(model_type):
     else:
         print("Invalid Model Type Input")
         return
+
+    print("Model summary......")
+    model.summary()
 
     train(model, network_input, network_output, model_type)
 
@@ -132,7 +136,9 @@ def create_lstm(network_input, n_vocab):
     model.add(Dropout(0.3))
     model.add(Dense(n_vocab))
     model.add(Activation('softmax'))
-    model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
+
+    print("Compiling model.....")
+    model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
 
     return model
 
@@ -155,7 +161,9 @@ def create_rnn(network_input, n_vocab):
     model.add(Dropout(0.3))
     model.add(Dense(n_vocab))
     model.add(Activation('softmax'))
-    model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
+
+    print("Compiling model.....")
+    model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
 
     return model
 
@@ -178,19 +186,29 @@ def create_gru(network_input, n_vocab):
     model.add(Dropout(0.3))
     model.add(Dense(n_vocab))
     model.add(Activation('softmax'))
-    model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
+
+    print("Compiling model.....")
+    model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
 
     return model
 
 def train(model, network_input, network_output, model_type):
     """ train the neural network """
+
+    tensorboard = None
     file_path = None
+
     if model_type == "lstm":
         filepath = "touhou_lstm.hdf5"
+        tensorboard = TensorBoard(log_dir='./logs/lstm', histogram_freq=1)
+
     elif model_type == "rnn":
         filepath = "touhou_rnn.hdf5"
+        tensorboard = TensorBoard(log_dir='./logs/rnn', histogram_freq=1)
+
     elif model_type == "gru":
         filepath = "touhou_gru.hdf5"
+        tensorboard = TensorBoard(log_dir='./logs/gru', histogram_freq=1)
 
     checkpoint = ModelCheckpoint(
         filepath,
@@ -199,9 +217,10 @@ def train(model, network_input, network_output, model_type):
         save_best_only=True,
         mode='min'
     )
-    callbacks_list = [checkpoint]
 
-    model.fit(network_input, network_output, epochs=200, batch_size=128, callbacks=callbacks_list)
+    callbacks_list = [checkpoint, tensorboard]
+
+    model.fit(network_input, network_output, epochs=200, batch_size=128, callbacks=callbacks_list, validation_split=0.2)
 
 if __name__ == '__main__':
     train_network(sys.argv[1])
