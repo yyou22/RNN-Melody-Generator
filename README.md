@@ -24,3 +24,4 @@ In this study, three RNN-based models are implemented with different RNN variant
 * Generate a melody of sequence length 100 using trained model
 
 ## References
+The implementation of this project is partially based on the implementation from [How to Generate Music using a LSTM Neural Network in Keras](https://towardsdatascience.com/how-to-generate-music-using-a-lstm-neural-network-in-keras-68786834d4c5).
