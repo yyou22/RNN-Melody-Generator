@@ -17,7 +17,7 @@ In this study, three RNN-based models are implemented with different RNN variant
 
 ### Model Training
 * run `python train.py [rnn/gru/lstm]`
-* Using a GRU-based or LSTM-based model is recommended for better results due to vanilla RNN suffering from the vanishing graident problem
+* Using a GRU-based or LSTM-based model is recommended for better results due to vanilla RNN suffering from the vanishing gradient problem
 
 ### Melody Generation
 * run `python predict.py [rnn/gru/lstm]`
