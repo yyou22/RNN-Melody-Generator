@@ -1,5 +1,5 @@
 
-# Creative AI: RNN-based Melody Generator
+# Melody AI: RNN-based Melody Generator
 
 Author:
 Yuzhe You
@@ -11,17 +11,20 @@ In this study, three RNN-based models are implemented with different RNN variant
 - Keras Tensorflow
 
 ## Getting started
-### Data Preprocessing
-* run `python input.py`
-* This will process all the sequences that will be used to generate melodies from the MIDI files located within the input folder
 
-### Model Training
-* run `python train.py [rnn/gru/lstm]`
+### Data Processing & Model Training
+* Place MIDI files (for training) inside the midi_songs folder
+* Run `python train.py [rnn/gru/lstm]`
 * Using a GRU-based or LSTM-based model is recommended for better results due to vanilla RNN suffering from the vanishing gradient problem
 
+### Input Sequence Preprocessing
+* Place the starting sequence (in the form of a MIDI file) in the input folder
+* Run `python input.py`
+* This will process all the sequences that will be used to generate melodies from the MIDI files located within the input folder
+
 ### Melody Generation
-* run `python predict.py [rnn/gru/lstm]`
-* Generate a melody of sequence length 100 using trained model
+* Run `python predict.py [rnn/gru/lstm]`
+* This will generate a melody of sequence length 100 using trained model
 
 ## References
 The implementation of this project is partially based on the implementation from [How to Generate Music using a LSTM Neural Network in Keras](https://towardsdatascience.com/how-to-generate-music-using-a-lstm-neural-network-in-keras-68786834d4c5).
