@@ -26,5 +26,9 @@ In this study, three RNN-based models are implemented with different RNN variant
 * Run `python predict.py [rnn/gru/lstm]`
 * This will generate a melody of sequence length 100 using trained model
 
+## Sample Outputs
+A playlist of sample outputs can be heard here:
+[Melody AI SoundCloud Playlist](https://soundcloud.com/yyou22/sets/melody-ai).
+
 ## References
 The implementation of this project is partially based on the implementation from [How to Generate Music using a LSTM Neural Network in Keras](https://towardsdatascience.com/how-to-generate-music-using-a-lstm-neural-network-in-keras-68786834d4c5).
